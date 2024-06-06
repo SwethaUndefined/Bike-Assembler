@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
 import { Row, Col, Button, Card, message } from "antd";
+import "./dashboard.css";
 import { getAllBikes } from "../api";
 import { useNavigate } from "react-router-dom";
+import AdminDashboard from "./adminDashboard";
+const { Meta } = Card;
 
 const Dashboard = () => {
   const [bikes, setBikes] = useState([]);
@@ -29,8 +32,7 @@ const Dashboard = () => {
       }, 2000);
       return;
     }
-    message.success(`Selected ${bike.name}`);
-    navigate(`/assembly/${bike.bike_id}`);
+    navigate("/admindashboard");
   };
 
   return (
@@ -42,15 +44,26 @@ const Dashboard = () => {
       </Row>
 
       <div>
-        <h1>All Bikes</h1>
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+      <h1 style={{ textAlign: 'center', color: 'darkblue', marginTop: '20px',fontWeight:'400' }}>Explore Our Bike Collection</h1>
+        <div className="bike_container">
           {bikes.map((bike, index) => (
-            <Card key={index} style={{ width: 300, margin: "10px" }}>
-              <h2>{bike.name}</h2>
-              <p>Assembly Time: {bike.assemblyTime}</p>
-              <Button type="primary" onClick={() => handleSelectBike(bike)}>
-                Select Bike
-              </Button>
+            <Card
+            key={index} 
+              hoverable
+              className="card"
+              cover={
+                <img
+                  alt={bike.bikeName}
+                  src={bike.thumbnail}
+                  className="bike_image"
+                />
+              }
+              onClick={() => handleSelectBike(bike)}
+            >
+              <Meta
+                title={bike.bikeName}
+                description={`CC: ${bike.cc}, Model: ${bike.model}`}
+              />
             </Card>
           ))}
         </div>

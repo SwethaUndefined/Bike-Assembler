@@ -1,0 +1,14 @@
+.bike_container{
+    display: flex;
+    flex-wrap: wrap;
+}
+.card{
+    width: 300px;
+    margin: 20px;
+    border: 1px solid #ddd;
+}
+.bike_image{
+   border: 1px solid #ddd;
+   border-bottom: none;
+   height: 200px;
+}
