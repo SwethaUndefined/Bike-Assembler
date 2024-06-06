@@ -1,0 +1,19 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+.header{
+    background-color: #3C79A5;
+    height: 60px;
+}
+
+.logout{
+    background-color: #0033a0 !important;
+    color: #ffffff;
+    border: none !important;
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-right: 10px;
+}

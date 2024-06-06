@@ -1,12 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './pages/login';  
+import Dashboard from './pages/dashboard';
+import AssemblyPage from './pages/assembly';
 
-function App() {
+
+const App = () => {
   return (
-    <div className="App">
-      <p>Bike Assembler</p>
-    </div>
+    <Router>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/assembly/:bike_id" element={<AssemblyPage />} />
+
+    </Routes>
+  </Router>
   );
-}
+};
 
 export default App;
