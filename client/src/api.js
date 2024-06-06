@@ -14,7 +14,6 @@ export const loginCheck = async (values) => {
   }
 };
 export const logoutUser = async (username) => {
-  console.log(username,"-------")
   try {
     const res = await instance.post("/logout", { username });
     return res.data;

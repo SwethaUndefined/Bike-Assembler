@@ -19,7 +19,6 @@ const Login = () => {
     try {
       const response = await loginCheck(formData);
       if (response.success) {
-        console.log(response)
         localStorage.setItem('token', response.token); 
         localStorage.setItem('username', response.username); 
         message.success('Login Successful');

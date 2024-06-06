@@ -33,14 +33,12 @@ module.exports = {
         });
       }
     } catch (error) {
-      console.error("Error during login:", error);
       return res.status(500).json({ success: false, error: "Internal server error" });
     }
   },
   logout: async (req, res) => {
     try {
       const { username } = req.body;
-      console.log(username)
       const user = await User.findOneAndUpdate(
         { username },
         { $set: { isLoggedin: false, token: '' } },

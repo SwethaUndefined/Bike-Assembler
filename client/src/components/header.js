@@ -17,7 +17,6 @@ const Header = () => {
       localStorage.removeItem('token'); 
       localStorage.removeItem("username");
       const res = await logoutUser(username); 
-      console.log(res,"res")
       message.success('Logged out successfully.');
       navigate('/bikes'); 
     } catch (error) {
