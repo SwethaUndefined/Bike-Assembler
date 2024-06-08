@@ -14,7 +14,6 @@ import "./assembledBikesInMetrics.css";
 
 const AssembledBikesInMetrics = () => {
   const [bikes, setBikes] = useState([]);
-
   useEffect(() => {
     fetchBikes();
   }, []);
@@ -25,7 +24,6 @@ const AssembledBikesInMetrics = () => {
       const filteredBikes = response.bikes.filter(
         (bike) => bike.status === "completed"
       );
-      console.log(filteredBikes);
       setBikes(filteredBikes);
     } catch (error) {
       console.error("Error fetching assembled bikes:", error);

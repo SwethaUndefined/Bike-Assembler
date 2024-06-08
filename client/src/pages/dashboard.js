@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import bikeImage from "../assests/bike.webp";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons"; 
 import AssembledBikesInMetrics from "../components/assembledBikesInMetrics";
+import EmployeeProductionMetrics from "../components/productionMetrics";
+
 const { Meta } = Card;
 
 const Dashboard = () => {
@@ -22,8 +24,9 @@ const Dashboard = () => {
       console.log("Fetching bikes");
       try {
         const response = await getAllBikes();
+        setAvailableBikes(response.bikes);
         const filteredBikes = response.bikes.filter(bike => bike.status !== 'completed');
-        setAvailableBikes(filteredBikes);
+
         setBikes(filteredBikes);
       } catch (error) {
         console.error("Error fetching bikes:", error);
@@ -149,7 +152,8 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
-      {bikes.some((bike) => bike.status === "completed") && <AssembledBikesInMetrics />}
+      {availableBikes.some((bike) => bike.status === "completed") && <AssembledBikesInMetrics />}
+      {username && <EmployeeProductionMetrics />}
     </section>
   );
 };

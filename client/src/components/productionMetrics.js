@@ -1,43 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { getProductionCountForDay } from '../api'; // Import the API function to fetch production count
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'; // Import Recharts components
-import { Typography } from 'antd'; // Import Ant Design Typography component
-
+import React, { useState, useEffect } from "react";
+import { getProductionCountForDay } from "../api";
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from "recharts";
+import { Typography, DatePicker,Row,Col,Empty } from "antd";
+import "./productionMetrics.css"
 const { Title } = Typography;
 
 const EmployeeProductionMetrics = () => {
   const [productionData, setProductionData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const username = localStorage.getItem("username");
 
   useEffect(() => {
-    fetchProductionData();
-  }, []); 
-
+    if (selectedDate) {
+      fetchProductionData();
+    } else {
+      setProductionData([]);
+    }
+  }, [selectedDate]);
   const fetchProductionData = async () => {
     try {
-      const response = await getProductionCountForDay(selectedDate); 
-      setProductionData(response.productionCounts); 
+      if (!selectedDate) {
+        return;
+      }
+      const dateObj = new Date(selectedDate);
+      const isoDateString = dateObj.toISOString();
+      const response = await getProductionCountForDay(username, isoDateString);
+      const dataArray = [
+        { name: "Production Count", value: response.productionCount },
+      ];
+      setProductionData(dataArray);
     } catch (error) {
-      console.error('Error fetching production data:', error);
+      console.error("Error fetching production data:", error);
     }
   };
 
   return (
-    <div>
-      <Title level={2}>Employee Production Metrics</Title>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart
-          data={productionData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="employeeName" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="productionCount" fill="#8884d8" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <Row>
+      <Col span={24}>
+        <Typography className="title">Employee Production Metrics</Typography>
+      </Col>
+      <Col span={24} className="datePicker">
+        <DatePicker onChange={(date, dateString) => setSelectedDate(date)} />
+      </Col>
+      {selectedDate && productionData.length > 0 ? (
+        <Col span={24} className="assembleMetrics">
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={productionData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                label
+              />
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Col>
+      ) : (
+        <Col span={24} className="emptyMessage">
+          <Empty description="No Production" />
+        </Col>
+      )}
+    </Row>
   );
 };
 

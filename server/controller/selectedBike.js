@@ -1,23 +1,26 @@
-const SelectedBike = require('../model/selectedBike');
+const SelectedBike = require("../model/selectedBike");
 const Bike = require("../model/bike");
-const User = require('../model/user');
+const User = require("../model/user");
+const Production = require("../model/productionCount");
 
 module.exports = {
   submitSelectedBikes: async (req, res) => {
     const selectedBikes = req.body.selectedBikes;
     const username = req.body.username;
 
-    const filteredSelectedBikes = selectedBikes.filter(bike => Object.keys(bike).length !== 0);
+    const filteredSelectedBikes = selectedBikes.filter(
+      (bike) => Object.keys(bike).length !== 0
+    );
 
-    const sanitizedSelectedBikes = filteredSelectedBikes.map(bike => {
-      const { _id, ...sanitizedBike } = bike; 
+    const sanitizedSelectedBikes = filteredSelectedBikes.map((bike) => {
+      const { _id, ...sanitizedBike } = bike;
       return sanitizedBike;
     });
 
-    sanitizedSelectedBikes.forEach(newBike => {
+    sanitizedSelectedBikes.forEach((newBike) => {
       newBike.status = "Yet to start";
-      newBike.progress = 0; 
-      newBike.duration = 0; 
+      newBike.progress = 0;
+      newBike.duration = 0;
       newBike.created_at = Date.now();
       newBike.modified_at = Date.now();
     });
@@ -30,10 +33,12 @@ module.exports = {
       });
       await newDocument.save();
 
-      res.status(200).json({ message: 'Selected bikes submitted successfully' });
+      res
+        .status(200)
+        .json({ message: "Selected bikes submitted successfully" });
     } catch (error) {
       console.error("Error submitting selected bikes:", error);
-      res.status(500).json({ error: 'Failed to submit selected bikes' });
+      res.status(500).json({ error: "Failed to submit selected bikes" });
     }
   },
 
@@ -44,12 +49,14 @@ module.exports = {
       const selectedBikes = await SelectedBike.findOne({ username });
 
       if (!selectedBikes) {
-        return res.status(404).json({ error: 'Selected bikes not found for this user' });
+        return res
+          .status(404)
+          .json({ error: "Selected bikes not found for this user" });
       }
 
       res.status(200).json(selectedBikes.selectedBikes);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch selected bikes' });
+      res.status(500).json({ error: "Failed to fetch selected bikes" });
     }
   },
 
@@ -60,44 +67,57 @@ module.exports = {
     try {
       const userBikes = await SelectedBike.findOne({ username });
       if (!userBikes) {
-        return res.status(404).json({ error: 'Selected bikes not found for this user' });
+        return res
+          .status(404)
+          .json({ error: "Selected bikes not found for this user" });
       }
 
-      const bikeToUpdate = userBikes.selectedBikes.find(bike => bike._id.toString() === bikeId);
+      const bikeToUpdate = userBikes.selectedBikes.find(
+        (bike) => bike._id.toString() === bikeId
+      );
       if (!bikeToUpdate) {
-        return res.status(404).json({ error: 'Selected bike not found for this user' });
+        return res
+          .status(404)
+          .json({ error: "Selected bike not found for this user" });
       }
-      
+
       bikeToUpdate.status = status;
-      bikeToUpdate.startProgress = Number(startProgress); 
+      bikeToUpdate.startProgress = Number(startProgress);
       bikeToUpdate.duration = duration;
       bikeToUpdate.modified_at = new Date();
-      bikeToUpdate.productionCount = 
-      await userBikes.save();
+      bikeToUpdate.productionCount = await userBikes.save();
 
-
-      if (status === 'Completed') {
+      if (status === "Completed") {
         const user = await User.findOne({ username });
         if (user) {
           user.productionCount = (user.productionCount || 0) + 1;
           await user.save();
         }
-  
+
         userBikes.productionCount = (userBikes.productionCount || 0) + 1;
         await userBikes.save();
       }
+      const completionDate = new Date(); 
+      completionDate.setHours(0, 0, 0, 0);
   
-
+      let production = await Production.findOne({ username, date: completionDate });
+      if (production) {
+        production.productionCount += 1;
+      } else {
+        production = new Production({ username, date: completionDate, productionCount: 1 });
+      }
+  
+      await production.save();
       const currentDate = new Date();
       await Bike.findOneAndUpdate(
         { bikeName: bikeName },
         { $set: { status: "completed", modified_at: currentDate } }
       );
 
-      res.status(200).json({ message: 'Selected bike updated successfully' });
+      res.status(200).json({ message: "Selected bike updated successfully" });
     } catch (error) {
       console.error("Error updating selected bike:", error);
-      res.status(500).json({ error: 'Failed to update selected bike' });
+      res.status(500).json({ error: "Failed to update selected bike" });
     }
-  }
+  },
 };
