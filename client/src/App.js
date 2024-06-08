@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/login';  
 import Dashboard from './pages/dashboard';
-import AdminDashboard from './pages/adminDashboard';
+import Assemble from './pages/assemble';
+
 const App = () => {
   return (
     <Router>
@@ -10,7 +11,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/bikes" />} />
         <Route path="/bikes" element={<Dashboard />} />
-        <Route path="/admindashboard" element={<AdminDashboard />} /> 
+        <Route path="/assemble" element={<Assemble />} /> 
       </Routes>
     </Router>
   );

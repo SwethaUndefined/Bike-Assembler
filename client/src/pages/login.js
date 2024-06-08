@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import {loginCheck} from "../api";
+import {loginCheck,getSelectedBikesByUsername} from "../api";
 import "./login.css";
 
 const Login = () => {
@@ -14,6 +14,25 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+    const checkAssignedBikes = async () => {
+      const username = localStorage.getItem('username');
+      if (username) {
+        try {
+          const assignedBikes = await getSelectedBikesByUsername(username);
+          if (assignedBikes.length > 0 && !assignedBikes.every(bike => bike.status === 'Completed')) {
+            navigate('/assemble');
+          }
+          else {
+            navigate(`/bikes`);
+          }
+        } catch (error) {
+          
+        }
+      }
+    };
+
+    
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -22,7 +41,8 @@ const Login = () => {
         localStorage.setItem('token', response.token); 
         localStorage.setItem('username', response.username); 
         message.success('Login Successful');
-        navigate(`/admindashboard`);
+        checkAssignedBikes();
+        navigate(`/bikes`);
       } else {
         if (response.error === 'Incorrect password. Please enter the correct password.') {
           message.error('Please enter the correct password.');
