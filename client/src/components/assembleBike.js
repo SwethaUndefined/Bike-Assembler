@@ -1,79 +1,124 @@
-import React, { useEffect, useState } from "react";
-import { Progress, Typography, Row, Col } from "antd";
+import React, { useState, useEffect } from "react";
+import { Progress,Typography,Row,Col,message } from "antd";
 import "./assembleBike.css";
-import { useBikeAssembly } from "../bikeAssemblyProvider";
+import {updateSelectedBike,getSelectedBikesByUsername} from "../api"
 
-const BikeAssembly = ({ selectedBike }) => {
-  const { progress, timeLeft, status, setProgress, setTimeLeft, setStatus } =
-    useBikeAssembly();
-  const [assembleTimeMilliseconds, setAssembleTimeMilliseconds] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(selectedBike?.duration);
-  const [isFirstRender, setIsFirstRender] = useState(true);
-
-  useEffect(() => { 
+const AssembleBike = ({ selectedBike, setIsInProgress, updateSelectedBikes }) => {
+  const [progress, setProgress] = useState(0);
+  const [timeLeft, setTimeLeft] = useState("");
+  const [status, setStatus] = useState("Yet to Start");
+  const username = localStorage.getItem("username");
+  useEffect(() => {
     if (selectedBike) {
-      let calculatedAssembleTime = selectedBike.duration > 0 ? selectedBike.duration : selectedBike.assembleTime
-      const [hours, minutes] = calculatedAssembleTime.split(":").map(Number);
-      const timeInMilliseconds = hours * 3600000 + minutes * 60000;
-      setAssembleTimeMilliseconds(timeInMilliseconds);
-      setRemainingTime(timeInMilliseconds);
-      // Set initial values only if they exist in selectedBike
-      if (selectedBike.progress !== undefined) setProgress(selectedBike.progress);
-      if (selectedBike.status !== undefined) setStatus(selectedBike.status);
-      if (selectedBike.duration !== undefined) setTimeLeft(selectedBike.duration);
-      setIsFirstRender(false);
+      setProgress(selectedBike.progress);
+      setStatus("In progress");
+      setTimeLeft(
+        selectedBike.duration !== "00:00:00"
+          ? selectedBike.duration
+          : selectedBike.assembleTime
+      );
     }
-  }, [selectedBike, setProgress, setStatus, setTimeLeft]);
+  }, [selectedBike]);
 
-  const progressPercentage =
-    ((assembleTimeMilliseconds - remainingTime) / assembleTimeMilliseconds) *
-    100;
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setRemainingTime((prevTime) => Math.max(prevTime - 1000, 0));
-    }, 1000);
+    
+    if (!selectedBike) return; 
 
-    return () => clearInterval(timer);
-  }, []);
+    const assembleTimeInSeconds = calculateAssembleTimeInSeconds(
+      selectedBike.duration !== "00:00:00"
+        ? selectedBike.duration
+        : selectedBike.assembleTime
+    );
 
-  useEffect(() => {
-    if (!isFirstRender) {
-      if (progress > 0) setStatus("In Progress");
-      if (progress === 100) setStatus("Completed");
-      setTimeLeft(new Date(remainingTime).toISOString().substr(11, 8));
-      setProgress(Math.round(progressPercentage));
+    
+    let elapsedTime = Math.round(selectedBike.progress * (assembleTimeInSeconds / 100)); 
+    const interval = setInterval(() => {
+      elapsedTime++;
+      const progressPercentage = Math.min(
+        (elapsedTime / assembleTimeInSeconds) * 100,
+        100
+      );
+      setProgress(progressPercentage);
+
+      const remainingSeconds = Math.max(assembleTimeInSeconds - elapsedTime, 0);
+      setTimeLeft(secondsToTime(remainingSeconds));
+  
       const assembleReport = {
-        timeLeft,
-        progress,
-        status,
+        timeLeft: secondsToTime(remainingSeconds),
+        progress: Math.round(progressPercentage),
+        status: "In progress"
       };
       localStorage.setItem("assembleReport", JSON.stringify(assembleReport));
-    }
-  }, [remainingTime, progress, progressPercentage, setStatus, setTimeLeft, setProgress, status, timeLeft, isFirstRender]);
+  
+      if (elapsedTime >= assembleTimeInSeconds) {
+        clearInterval(interval);
+        setStatus("Completed");
+        handleAssemblyCompletion("Completed", progressPercentage, secondsToTime(remainingSeconds))
+      }
+    }, 1000);
+  
+    // Cleanup function
+    return () => clearInterval(interval);
+  }, [selectedBike]);
+  
 
+  const calculateAssembleTimeInSeconds = (assembleTime) => {
+    const [hours, minutes, seconds] = assembleTime.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  const secondsToTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours < 10 ? "0" : ""}${hours}:${
+      minutes < 10 ? "0" : ""
+    }${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+  
+  const handleAssemblyCompletion = async (status, progress, timeLeft) => {
+    try {
+      const bikeStatus = {
+        status: status,
+        progress: progress,
+        duration: timeLeft,
+        bikeName: selectedBike.bikeName
+      }
+      await updateSelectedBike(selectedBike._id, username, bikeStatus)
+      const updatedBikes = await getSelectedBikesByUsername(username);
+      updateSelectedBikes(updatedBikes);
+      message.success("Bike assembly completed successfully!");
+      setIsInProgress(false);
+    } catch (error) {
+      message.error("Failed to update backend");
+    }
+  };
   return (
     <section className="assembling-bike">
-      <Row>
-        <Col span={24}>
-          <Typography.Title level={3}>Assemble Progress</Typography.Title>
-        </Col>
-        <Col span={24} className="progressbar">
-          <Progress
-            type="circle"
-            percent={progress}
-            format={() => <span style={{ fontSize: "13px" }}>{progress}%</span>}
+    <Row>
+      <Col span={24}>
+      <Typography className="name">
+            {selectedBike && selectedBike.bikeName} is {status === 'Completed' ? 'assembled' : 'assembling'}
+          </Typography>
+
+      </Col>
+      <Col span={24} className="progressbar">
+        <Progress
+          type="circle"
+          percent={progress}
+          format={() => <span style={{ fontSize: "13px" }}>{Math.round(progress)}%</span>}
           />
-        </Col>
-        <Col span={24}>
-          <Typography.Title level={3}>Time Left</Typography.Title>
-          <Typography.Text>{timeLeft}</Typography.Text>
-          <Typography.Title level={3}>Status</Typography.Title>
-          <Typography.Text>{status}</Typography.Text>
-        </Col>
-      </Row>
-    </section>
+      </Col>
+      <Col span={24}>
+        <Typography.Title level={3}>Time Left</Typography.Title>
+        <Typography.Text>{timeLeft}</Typography.Text>
+        <Typography.Title level={3}>Status</Typography.Title>
+        <Typography.Text>{status}</Typography.Text>
+      </Col>
+    </Row>
+  </section>
   );
 };
 
-export default BikeAssembly;
+export default AssembleBike;

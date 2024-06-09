@@ -3,11 +3,9 @@ import { Button, message, Row, Col, Typography, Space } from "antd";
 import { json, useNavigate } from "react-router-dom";
 import { logoutUser, updateSelectedBike } from "../api";
 import "./header.css";
-import { useBikeAssembly } from "../bikeAssemblyProvider";
 
 const Header = ({ bikeId, bikeName }) => {
   const navigate = useNavigate();
-  const { progress, timeLeft, status } = useBikeAssembly();
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
   const username = localStorage.getItem("username");
@@ -31,7 +29,6 @@ const Header = ({ bikeId, bikeName }) => {
       message.success("Logged out successfully.");
       navigate("/bikes");
     } catch (error) {
-      console.error("Error logging out:", error);
       message.error("Failed to logout. Please try again.");
     }
   };

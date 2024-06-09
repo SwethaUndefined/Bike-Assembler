@@ -30,8 +30,7 @@ const AssembledBikesInMetrics = () => {
       );
       setBikesData(filteredBikes);
     } catch (error) {
-      console.error("Error fetching all bikes data:", error);
-    }
+   }
   };
 
   const handleDateChange = async (dates) => {
@@ -50,7 +49,6 @@ const AssembledBikesInMetrics = () => {
         ]);
         setLabel("Count");
       } catch (error) {
-        console.error("Error fetching data by date range:", error);
       }
     }
   };

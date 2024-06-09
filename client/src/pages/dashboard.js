@@ -28,7 +28,6 @@ const Dashboard = () => {
 
         setBikes(filteredBikes);
       } catch (error) {
-        console.error("Error fetching bikes:", error);
       }
     };
   
@@ -43,7 +42,9 @@ const Dashboard = () => {
         }, 2000);
         return;
     }
-  
+    if (selectedBikes.some(bike => bike === selectedBike)) {
+      return;
+  }
     try {
         const response = await getSelectedBikesByUsername(username);
         if (!response) {
@@ -53,7 +54,7 @@ const Dashboard = () => {
             ]);
             return;
         }
-  
+        
         const isBikeNotCompleted = response.some((bike) => bike.status !== "Completed");
   
         if (isBikeNotCompleted) {

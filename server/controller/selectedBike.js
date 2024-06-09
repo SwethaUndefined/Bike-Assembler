@@ -20,7 +20,7 @@ module.exports = {
     sanitizedSelectedBikes.forEach((newBike) => {
       newBike.status = "Yet to start";
       newBike.progress = 0;
-      newBike.duration = 0;
+      newBike.duration = "00:00:00";
       newBike.created_at = Date.now();
       newBike.modified_at = Date.now();
     });
@@ -80,7 +80,7 @@ module.exports = {
       }
 
       bikeToUpdate.status = status;
-      bikeToUpdate.progress = Number(progress);
+      bikeToUpdate.progress = progress;
       bikeToUpdate.duration = duration;
       bikeToUpdate.modified_at = new Date();
       await userBikes.save();
