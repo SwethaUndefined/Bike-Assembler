@@ -53,9 +53,16 @@ export const updateSelectedBike = async (bikeId, username, bikeStatus) => {
   }
 };
 export const getProductionCountForDay = async (username, date) => {
-  console.log(username, date)
   try {
     const res = await instance.get(`/production/production-count/${username}/${date}`);
+    return res.data;
+  } catch (error) {
+  }
+};
+
+export const fetchDataByDateRange = async (fromDate, toDate) => {
+  try {
+    const res = await instance.get(`/assembled/assembled-bikes?fromDate=${fromDate}&toDate=${toDate}`);
     return res.data;
   } catch (error) {
     throw error;
