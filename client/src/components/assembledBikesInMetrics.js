@@ -16,7 +16,7 @@ const { RangePicker } = DatePicker;
 
 const AssembledBikesInMetrics = () => {
   const [bikesData, setBikesData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [label, setLabel] = useState("cc");
 
   useEffect(() => {
     fetchAllBikesData();
@@ -29,15 +29,15 @@ const AssembledBikesInMetrics = () => {
         (bike) => bike.status === "completed"
       );
       setBikesData(filteredBikes);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
+      console.error("Error fetching all bikes data:", error);
     }
   };
 
   const handleDateChange = async (dates) => {
     if (!dates || dates.length === 0) {
       fetchAllBikesData();
+      setLabel("cc");
     } else if (dates.length === 2) {
       const [fromDate, toDate] = dates;
       const fromDateISO = fromDate.toISOString();
@@ -45,12 +45,15 @@ const AssembledBikesInMetrics = () => {
       try {
         const response = await fetchDataByDateRange(fromDateISO, toDateISO);
         const { assembledBikesCount } = response;
-        setBikesData([{ bikeName: "Assembled Bikes", cc: assembledBikesCount }]);
+        setBikesData([
+          { bikeName: "Assembled Bikes", cc: assembledBikesCount },
+        ]);
+        setLabel("Count");
       } catch (error) {
+        console.error("Error fetching data by date range:", error);
       }
     }
   };
-  
 
   return (
     <Row>
@@ -61,9 +64,6 @@ const AssembledBikesInMetrics = () => {
         <RangePicker onChange={handleDateChange} />
       </Col>
       <Col span={24} className="assembleMetrics">
-      {loading ? (
-        <div>Loading...</div>
-      ) : bikesData.length > 0 ? (
         <BarChart
           width={600}
           height={300}
@@ -75,12 +75,9 @@ const AssembledBikesInMetrics = () => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="cc" fill="#8884d8" />
+          <Bar dataKey="cc" fill="#8884d8" name={label} />
         </BarChart>
-      ) : (
-        <Empty description="No Bikes are assembled" />
-      )}
-    </Col>
+      </Col>
     </Row>
   );
 };

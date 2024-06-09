@@ -40,7 +40,7 @@ const Header = ({bikeId}) => {
         <Row>
           <Col span={24} align="end">
             <Space>
-              <Typography> {username}</Typography>
+            <Typography className="name">{username}!</Typography>
               <Button type="primary" className="logout" onClick={handleLogout}>
                 Logout
               </Button>

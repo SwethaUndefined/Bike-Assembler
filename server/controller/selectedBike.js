@@ -92,6 +92,7 @@ module.exports = {
         const assemblyDate = new Date(); 
         assemblyDate.setHours(0, 0, 0, 0);
         const assembler = username; 
+        // const cc = 
         const assembly = new BikeAssembly({ assemblyDate, bikeName, assembler });
         console.log(assembly,"assembly")
         await assembly.save();

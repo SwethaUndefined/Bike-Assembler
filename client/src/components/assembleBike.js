@@ -11,6 +11,7 @@ const BikeAssembly = ({ selectedBike, setIsInProgress, updateSelectedBikes }) =>
     const [hours, minutes] = assembleTime.split(":");
     return parseInt(hours) * 3600 + parseInt(minutes) * 60;
   };
+  console.log(selectedBike)
 
   const calculateInitialProgress = () => {
     if (selectedBike && status === 'in progress') {
