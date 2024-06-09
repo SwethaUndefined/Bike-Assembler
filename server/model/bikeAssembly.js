@@ -13,10 +13,6 @@ const BikeAssemblySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  cc: {
-    type: Number,
-    required: true,
-  },
 });
 
 const BikeAssembly = mongoose.model('BikeAssembly', BikeAssemblySchema);

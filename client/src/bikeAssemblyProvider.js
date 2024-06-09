@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const BikeAssemblyContext = createContext();
 
@@ -9,23 +9,18 @@ export const useBikeAssembly = () => {
 export const BikeAssemblyProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("Yet to Start");
 
-  const updateProgress = (newProgress) => {
-    setProgress(newProgress);
-  };
+  useEffect(()=>{
 
-  const updateTimeLeft = (newTimeLeft) => {
-    setTimeLeft(newTimeLeft);
-  };
+  console.log({progress})
 
-  const updateStatus = (newStatus) => {
-    setStatus(newStatus);
-  };
+  },[progress,timeLeft,status])
 
+  
   return (
     <BikeAssemblyContext.Provider
-      value={{ progress, timeLeft, status, updateProgress, updateTimeLeft, updateStatus }}
+      value={{ progress, timeLeft, status, setProgress,setTimeLeft,setStatus }}
     >
       {children}
     </BikeAssemblyContext.Provider>

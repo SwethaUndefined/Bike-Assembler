@@ -5,6 +5,6 @@ const selectedBikeController = require('../controller/selectedBike');
 
 router.post('/', selectedBikeController.submitSelectedBikes); 
 router.get('/:username', selectedBikeController.getSelectedBikes); 
-router.put('/:username/:bikeId', selectedBikeController.updateSelectedBike); // Add this line
+router.put('/:username/:bikeId', selectedBikeController.updateSelectedBike); 
 
 module.exports = router;

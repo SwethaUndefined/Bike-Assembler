@@ -24,12 +24,12 @@ const selectedBikeSchema = new mongoose.Schema({
     type: String,
     default: "Yet to start",
   },
-  startProgress: {
+  progress: {
     type: Number,
     default: 0,
   },
   duration: {
-    type: Number,
+    type: String,
     default: 0,
   },
 });

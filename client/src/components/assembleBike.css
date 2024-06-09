@@ -1,8 +1,9 @@
 
-.progress-text{
-    font-size: 15px;
-}
-.progress{
+.ant-progress-circle-text {
+    font-size: 13px !important; 
+  }
+  
+.progressbar{
     display: flex;
     justify-content: center;
 }

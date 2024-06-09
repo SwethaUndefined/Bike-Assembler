@@ -37,7 +37,6 @@ module.exports = {
         .status(200)
         .json({ message: "Selected bikes submitted successfully" });
     } catch (error) {
-      console.error("Error submitting selected bikes:", error);
       res.status(500).json({ error: "Failed to submit selected bikes" });
     }
   },
@@ -62,8 +61,7 @@ module.exports = {
 
   updateSelectedBike: async (req, res) => {
     const { username, bikeId } = req.params;
-    const { status, startProgress, duration, bikeName } = req.body;
-
+    const { status, progress, duration, bikeName } = req.body;
     try {
       const userBikes = await SelectedBike.findOne({ username });
       if (!userBikes) {
@@ -82,7 +80,7 @@ module.exports = {
       }
 
       bikeToUpdate.status = status;
-      bikeToUpdate.startProgress = Number(startProgress);
+      bikeToUpdate.progress = Number(progress);
       bikeToUpdate.duration = duration;
       bikeToUpdate.modified_at = new Date();
       await userBikes.save();
@@ -92,32 +90,29 @@ module.exports = {
         const assemblyDate = new Date(); 
         assemblyDate.setHours(0, 0, 0, 0);
         const assembler = username; 
-        // const cc = 
         const assembly = new BikeAssembly({ assemblyDate, bikeName, assembler });
-        console.log(assembly,"assembly")
         await assembly.save();
-      }
 
-      const completionDate = new Date(); 
-      completionDate.setHours(0, 0, 0, 0);
-  
-      let production = await Production.findOne({ username, date: completionDate });
-      if (production) {
-        production.productionCount += 1;
-      } else {
-        production = new Production({ username, date: completionDate, productionCount: 1 });
-      }
-  
-      await production.save();
-      const currentDate = new Date();
-      await Bike.findOneAndUpdate(
-        { bikeName: bikeName },
-        { $set: { status: "completed", modified_at: currentDate } }
-      );
+        const completionDate = new Date(); 
+        completionDate.setHours(0, 0, 0, 0);
+    
+        let production = await Production.findOne({ username, date: completionDate });
+        if (production) {
+          production.productionCount += 1;
+        } else {
+          production = new Production({ username, date: completionDate, productionCount: 1 });
+        }
+    
+        await production.save();
 
+        const currentDate = new Date();
+        await Bike.findOneAndUpdate(
+          { bikeName: bikeName },
+          { $set: { status: "completed", modified_at: currentDate } }
+        );
+      }
       res.status(200).json({ message: "Selected bike updated successfully" });
     } catch (error) {
-      console.error("Error updating selected bike:", error);
       res.status(500).json({ error: "Failed to update selected bike" });
     }
   },

@@ -1,102 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { Progress, Typography, message, Row, Col } from "antd";
+import { Progress, Typography, Row, Col } from "antd";
 import "./assembleBike.css";
-import { updateSelectedBike, getSelectedBikesByUsername } from "../api";
 import { useBikeAssembly } from "../bikeAssemblyProvider";
 
-const BikeAssembly = ({ selectedBike, setIsInProgress, updateSelectedBikes }) => {
-  const { progress, timeLeft, status, updateProgress, updateTimeLeft, updateStatus } = useBikeAssembly();
-  const username = localStorage.getItem("username")
-  const assembleTimeToSeconds = (assembleTime) => {
-    const [hours, minutes] = assembleTime.split(":");
-    return parseInt(hours) * 3600 + parseInt(minutes) * 60;
-  };
-  console.log(selectedBike)
+const BikeAssembly = ({ selectedBike }) => {
+  const { progress, timeLeft, status, setProgress, setTimeLeft, setStatus } =
+    useBikeAssembly();
+  const [assembleTimeMilliseconds, setAssembleTimeMilliseconds] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(selectedBike?.duration);
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
-  const calculateInitialProgress = () => {
-    if (selectedBike && status === 'in progress') {
-      const totalAssemblyTime = assembleTimeToSeconds(selectedBike.assembleTime);
-      const remainingTime = timeLeft;
-      return Math.floor(((totalAssemblyTime - remainingTime) / totalAssemblyTime) * 100);
+  useEffect(() => { 
+    if (selectedBike) {
+      let calculatedAssembleTime = selectedBike.duration > 0 ? selectedBike.duration : selectedBike.assembleTime
+      const [hours, minutes] = calculatedAssembleTime.split(":").map(Number);
+      const timeInMilliseconds = hours * 3600000 + minutes * 60000;
+      setAssembleTimeMilliseconds(timeInMilliseconds);
+      setRemainingTime(timeInMilliseconds);
+      // Set initial values only if they exist in selectedBike
+      if (selectedBike.progress !== undefined) setProgress(selectedBike.progress);
+      if (selectedBike.status !== undefined) setStatus(selectedBike.status);
+      if (selectedBike.duration !== undefined) setTimeLeft(selectedBike.duration);
+      setIsFirstRender(false);
     }
-    return 0;
-  };
+  }, [selectedBike, setProgress, setStatus, setTimeLeft]);
+
+  const progressPercentage =
+    ((assembleTimeMilliseconds - remainingTime) / assembleTimeMilliseconds) *
+    100;
 
   useEffect(() => {
-    if (!selectedBike || !selectedBike.assembleTime) {
-      return;
-    }
-
-    const initialTimeLeft = assembleTimeToSeconds(selectedBike.assembleTime);
-    updateTimeLeft(initialTimeLeft);
-
-    const initialProgress = calculateInitialProgress();
-    updateProgress(initialProgress);
-
     const timer = setInterval(() => {
-      updateTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(timer);
-          setIsInProgress(false);
-          updateStatus("Completed");
-          handleAssemblyCompletion();
-          return 0;
-        }
-        updateStatus("in progress");
-        const progressPercentage = Math.floor(((assembleTimeToSeconds(selectedBike.assembleTime) - prevTime) / assembleTimeToSeconds(selectedBike.assembleTime)) * 100);
-        updateProgress(progressPercentage);
-        return prevTime - 1;
-      });
+      setRemainingTime((prevTime) => Math.max(prevTime - 1000, 0));
     }, 1000);
-    return () => clearInterval(timer);
-  }, [selectedBike]);
 
-  
-  const handleAssemblyCompletion = async () => {
-    try {
-      const durationTaken = assembleTimeToSeconds(selectedBike.assembleTime) - timeLeft;
-      const progressPercentage = Math.floor(((assembleTimeToSeconds(selectedBike.assembleTime) - timeLeft) / assembleTimeToSeconds(selectedBike.assembleTime)) * 100);
-      await updateSelectedBike(selectedBike._id, username, {
-        status: "Completed",
-        startProgress: progressPercentage,
-        duration: durationTaken,
-        bikeName: selectedBike.bikeName
-      });
-      const updatedBikes = await getSelectedBikesByUsername(username);
-      updateSelectedBikes(updatedBikes);
-      message.success("Bike assembly completed successfully!");
-    } catch (error) {
-      message.error("Failed to update backend");
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isFirstRender) {
+      if (progress > 0) setStatus("In Progress");
+      if (progress === 100) setStatus("Completed");
+      setTimeLeft(new Date(remainingTime).toISOString().substr(11, 8));
+      setProgress(Math.round(progressPercentage));
+      const assembleReport = {
+        timeLeft,
+        progress,
+        status,
+      };
+      localStorage.setItem("assembleReport", JSON.stringify(assembleReport));
     }
-  };
-  
-  const totalAssemblyTime = selectedBike ? assembleTimeToSeconds(selectedBike.assembleTime) : 0;
-  const remainingTimePercentage = Math.floor((timeLeft / totalAssemblyTime) * 100);
+  }, [remainingTime, progress, progressPercentage, setStatus, setTimeLeft, setProgress, status, timeLeft, isFirstRender]);
 
   return (
     <section className="assembling-bike">
       <Row>
         <Col span={24}>
-          <Typography className="name">
-            {selectedBike && selectedBike.bikeName} is {status === 'Completed' ? 'assembled' : 'assembling'}
-          </Typography>
+          <Typography.Title level={3}>Assemble Progress</Typography.Title>
         </Col>
-        <Col span={24} className="progress">
+        <Col span={24} className="progressbar">
           <Progress
             type="circle"
-            percent={status === 'in progress' ? progress : calculateInitialProgress()}
-            format={() => (
-              <Typography className="progress-text">
-                {status === 'in progress' ? progress : calculateInitialProgress()}%
-              </Typography>
-            )}
+            percent={progress}
+            format={() => <span style={{ fontSize: "13px" }}>{progress}%</span>}
           />
         </Col>
-        <Typography>Time Left: {timeLeft} seconds</Typography>
-        <Typography>Status: {status}</Typography>
-        <Typography className="progress-text">
-          {status === 'in progress' ? progress : calculateInitialProgress()}%
-        </Typography>
+        <Col span={24}>
+          <Typography.Title level={3}>Time Left</Typography.Title>
+          <Typography.Text>{timeLeft}</Typography.Text>
+          <Typography.Title level={3}>Status</Typography.Title>
+          <Typography.Text>{status}</Typography.Text>
+        </Col>
       </Row>
     </section>
   );

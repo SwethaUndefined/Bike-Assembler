@@ -32,6 +32,7 @@ const Assemble = () => {
     fetchData();
   }, [username]);
 
+
   const handleBikeClick = (bike) => {
     if (bike.status === "Completed") {
       message.warning("Bike already assembled!");
@@ -45,9 +46,9 @@ const Assemble = () => {
 
   return (
     <BikeAssemblyProvider>
-      <Header bikeId={selectedBike && selectedBike._id} />
+      <Header bikeId={selectedBike && selectedBike._id} bikeName={selectedBike && selectedBike.bikeName}/>
       <div className="bike_container">
-        {selectedBikes.map((bike, index) => (
+        {selectedBikes?.length > 0 ?   selectedBikes.map((bike, index) => (
           <Card
             key={index}
             hoverable
@@ -60,13 +61,11 @@ const Assemble = () => {
               description={`CC: ${bike.cc}, Model: ${bike.model}, Assemble Time: ${bike.assembleTime}`}
             />
           </Card>
-        ))}
+        )) : <div>No Bikes Selected</div>}
       </div>
       {selectedBike && (
         <BikeAssembly
           selectedBike={selectedBike}
-          isInProgress={isInProgress}
-          setIsInProgress={setIsInProgress}
           updateSelectedBikes={setSelectedBikes}
         />
       )}
