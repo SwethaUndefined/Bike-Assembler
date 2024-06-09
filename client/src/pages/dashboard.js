@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/header";
 import { Row, Col, Card, message, Button } from "antd";
 import "./dashboard.css";
-import { getAllBikes, submitSelectedBikes } from "../api";
+import { getAllBikes, submitSelectedBikes,getSelectedBikesByUsername } from "../api";
 import { useNavigate } from "react-router-dom";
 import bikeImage from "../assests/bike.webp";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons"; 
@@ -21,7 +21,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchBikes = async () => {
-      console.log("Fetching bikes");
       try {
         const response = await getAllBikes();
         setAvailableBikes(response.bikes);
@@ -36,20 +35,46 @@ const Dashboard = () => {
     fetchBikes();
   }, []);
 
-  const handleSelectBike = (selectedBike) => {
+  const handleSelectBike = async (selectedBike) => {
     if (!token) {
-      message.error("Please login to select a bike");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-      return;
+        message.error("Please login to select a bike");
+        setTimeout(() => {
+            navigate("/login");
+        }, 2000);
+        return;
     }
-    setSelectedBikes((prevSelectedBikes) => [
-      ...prevSelectedBikes,
-      selectedBike,
-    ]);
-  };
+  
+    try {
+        const response = await getSelectedBikesByUsername(username);
+        if (!response) {
+            setSelectedBikes((prevSelectedBikes) => [
+                ...prevSelectedBikes,
+                selectedBike,
+            ]);
+            return;
+        }
+  
+        const isBikeNotCompleted = response.some((bike) => bike.status !== "Completed");
+  
+        if (isBikeNotCompleted) {
+            message.warning("You already have bikes assigned to assemble.");
+            navigate("/assemble");
+            return;
+        } else {
+            message.info("Your task for today is already completed.");
+            return;
+        }
+    } catch (error) {
+        setSelectedBikes((prevSelectedBikes) => [
+            ...prevSelectedBikes,
+            selectedBike,
+        ]);
+    }
+};
 
+  
+  
+  
   const handleRemoveBike = (selectedBikeToRemove) => {
     setSelectedBikes((prevSelectedBikes) =>
       prevSelectedBikes.filter((bike) => bike !== selectedBikeToRemove)
@@ -74,7 +99,6 @@ const Dashboard = () => {
       setSelectedBikes([]);
       navigate("/assemble");
     } catch (error) {
-      console.error("Error submitting selected bikes:", error);
       message.error(
         "Failed to submit selected bikes. Please try again later."
       );

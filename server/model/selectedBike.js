@@ -39,7 +39,6 @@ const selectedBikeListSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  productionCount: { type: Number, default: 0 },
   selectedBikes: [selectedBikeSchema],
 });
 

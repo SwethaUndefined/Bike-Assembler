@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     created_dateAndTime: { type: Date, default: Date.now },
-    productionCount: { type: Number, default: 0 },
   },
   { collection: "users" }
 );

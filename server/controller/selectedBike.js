@@ -1,7 +1,7 @@
 const SelectedBike = require("../model/selectedBike");
 const Bike = require("../model/bike");
-const User = require("../model/user");
 const Production = require("../model/productionCount");
+const BikeAssembly = require("../model/bikeAssembly");
 
 module.exports = {
   submitSelectedBikes: async (req, res) => {
@@ -85,18 +85,18 @@ module.exports = {
       bikeToUpdate.startProgress = Number(startProgress);
       bikeToUpdate.duration = duration;
       bikeToUpdate.modified_at = new Date();
-      bikeToUpdate.productionCount = await userBikes.save();
+      await userBikes.save();
+
 
       if (status === "Completed") {
-        const user = await User.findOne({ username });
-        if (user) {
-          user.productionCount = (user.productionCount || 0) + 1;
-          await user.save();
-        }
-
-        userBikes.productionCount = (userBikes.productionCount || 0) + 1;
-        await userBikes.save();
+        const assemblyDate = new Date(); 
+        assemblyDate.setHours(0, 0, 0, 0);
+        const assembler = username; 
+        const assembly = new BikeAssembly({ assemblyDate, bikeName, assembler });
+        console.log(assembly,"assembly")
+        await assembly.save();
       }
+
       const completionDate = new Date(); 
       completionDate.setHours(0, 0, 0, 0);
   

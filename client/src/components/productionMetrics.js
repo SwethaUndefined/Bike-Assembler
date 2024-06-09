@@ -3,7 +3,6 @@ import { getProductionCountForDay } from "../api";
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from "recharts";
 import { Typography, DatePicker,Row,Col,Empty } from "antd";
 import "./productionMetrics.css"
-const { Title } = Typography;
 
 const EmployeeProductionMetrics = () => {
   const [productionData, setProductionData] = useState([]);
@@ -30,7 +29,6 @@ const EmployeeProductionMetrics = () => {
       ];
       setProductionData(dataArray);
     } catch (error) {
-      console.error("Error fetching production data:", error);
     }
   };
 
