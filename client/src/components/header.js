@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, message, Row, Col, Typography, Space } from "antd";
-import { json, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import { logoutUser, updateSelectedBike } from "../api";
 import "./header.css";
 

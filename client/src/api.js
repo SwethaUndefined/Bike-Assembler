@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://bike-assembler.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
 });
 
 export const loginCheck = async (values) => {

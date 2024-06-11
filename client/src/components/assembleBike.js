@@ -8,6 +8,7 @@ const AssembleBike = ({ selectedBike, setIsInProgress, updateSelectedBikes }) =>
   const [timeLeft, setTimeLeft] = useState("");
   const [status, setStatus] = useState("Yet to Start");
   const username = localStorage.getItem("username");
+  const [bikeName,setBikeName] = useState(selectedBike?.bikeName)
   useEffect(() => {
     if (selectedBike) {
       setProgress(selectedBike.progress);
@@ -32,7 +33,8 @@ const AssembleBike = ({ selectedBike, setIsInProgress, updateSelectedBikes }) =>
     );
 
     
-    let elapsedTime = Math.round(selectedBike.progress * (assembleTimeInSeconds / 100)); 
+    let elapsedTime = Math.round(selectedBike.progress * (assembleTimeInSeconds / 100));
+    
     const interval = setInterval(() => {
       elapsedTime++;
       const progressPercentage = Math.min(
@@ -58,7 +60,6 @@ const AssembleBike = ({ selectedBike, setIsInProgress, updateSelectedBikes }) =>
       }
     }, 1000);
   
-    // Cleanup function
     return () => clearInterval(interval);
   }, [selectedBike]);
   
@@ -98,9 +99,9 @@ const AssembleBike = ({ selectedBike, setIsInProgress, updateSelectedBikes }) =>
     <section className="assembling-bike">
     <Row>
       <Col span={24}>
-      <Typography className="name">
-            {selectedBike && selectedBike.bikeName} is {status === 'Completed' ? 'assembled' : 'assembling'}
-          </Typography>
+      <Typography className="bikeName">
+            {bikeName} is {status === 'Completed' ? 'assembled' : 'assembling'}
+        </Typography>
 
       </Col>
       <Col span={24} className="progressbar">
