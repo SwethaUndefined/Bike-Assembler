@@ -4,6 +4,20 @@ const Production = require("../model/productionCount");
 const BikeAssembly = require("../model/bikeAssembly");
 
 module.exports = {
+  getAllSelectedBikes: async (req, res) => {
+    try {
+        const allSelectedBikes = await SelectedBike.find();
+        console.log(allSelectedBikes)
+        if (!allSelectedBikes || allSelectedBikes.length === 0) {
+            return res.status(404).json({ error: "No selected bikes found" });
+        }
+        const selectedBikesList = allSelectedBikes.map(user => user.selectedBikes).flat();
+
+        res.status(200).json(selectedBikesList);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch selected bikes" });
+    }
+},
   submitSelectedBikes: async (req, res) => {
     const selectedBikes = req.body.selectedBikes;
     const username = req.body.username;
@@ -43,7 +57,7 @@ module.exports = {
 
   getSelectedBikes: async (req, res) => {
     const username = req.params.username;
-
+    console.log(username,"username==========================")
     try {
       const selectedBikes = await SelectedBike.findOne({ username });
 
@@ -116,4 +130,6 @@ module.exports = {
       res.status(500).json({ error: "Failed to update selected bike" });
     }
   },
+ 
+
 };

@@ -4,7 +4,6 @@ module.exports = {
   getproductionCount: async (req, res) => {
     try {
       const { username, date } = req.params;
-      console.log(username, date);
 
       const queryDate = new Date(date);
       const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));

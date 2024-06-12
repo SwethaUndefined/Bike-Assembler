@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://bike-assembler.onrender.com/api",
 });
 
 export const loginCheck = async (values) => {
@@ -23,6 +23,15 @@ export const logoutUser = async (username) => {
 export const getAllBikes = async () => {
   try {
     const res = await instance.get("/bike");
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const getAllSelectedBikes = async () => {
+  try {
+    const res = await instance.get("/selected-bike/allBikes");
+    console.log(res,"res")
     return res.data;
   } catch (error) {
     throw error;

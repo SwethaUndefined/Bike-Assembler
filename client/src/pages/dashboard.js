@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/header";
 import { Row, Col, Card, message, Button } from "antd";
 import "./dashboard.css";
-import { getAllBikes, submitSelectedBikes,getSelectedBikesByUsername } from "../api";
+import { getAllBikes, submitSelectedBikes,getSelectedBikesByUsername,getAllSelectedBikes } from "../api";
 import { useNavigate } from "react-router-dom";
 import bikeImage from "../assests/bike.webp";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons"; 
@@ -36,43 +36,53 @@ const Dashboard = () => {
 
   const handleSelectBike = async (selectedBike) => {
     if (!token) {
-        message.error("Please login to select a bike");
-        setTimeout(() => {
-            navigate("/login");
-        }, 2000);
-        return;
+      message.error("Please login to select a bike");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      return;
     }
     if (selectedBikes.some(bike => bike === selectedBike)) {
       return;
-  }
-    try {
-        const response = await getSelectedBikesByUsername(username);
-        if (!response) {
-            setSelectedBikes((prevSelectedBikes) => [
-                ...prevSelectedBikes,
-                selectedBike,
-            ]);
-            return;
-        }
-        
-        const isBikeNotCompleted = response.some((bike) => bike.status !== "Completed");
-  
-        if (isBikeNotCompleted) {
-            message.warning("You already have bikes assigned to assemble.");
-            navigate("/assemble");
-            return;
-        } else {
-            message.info("Your task for today is already completed.");
-            return;
-        }
-    } catch (error) {
-        setSelectedBikes((prevSelectedBikes) => [
-            ...prevSelectedBikes,
-            selectedBike,
-        ]);
     }
-};
-
+    try {
+      const allSelectedBikes = await getAllSelectedBikes();
+      console.log(allSelectedBikes,"allSelectedBikes")
+      if (allSelectedBikes && allSelectedBikes.includes(selectedBike)) {
+        message.warning("This bike has already been selected by another user.");
+        return;
+      }
+  
+      const userSelectedBikes = await getSelectedBikesByUsername(username);
+      console.log(userSelectedBikes,"userSelectedBikes")
+      if (!userSelectedBikes) {
+        setSelectedBikes((prevSelectedBikes) => [
+          ...prevSelectedBikes,
+          selectedBike,
+        ]);
+        return;
+      }
+      
+      const isBikeNotCompleted = userSelectedBikes.some((bike) => bike.status !== "Completed");
+  
+      if (isBikeNotCompleted) {
+        message.warning("You already have bikes assigned to assemble.");
+        navigate("/assemble");
+        return;
+      } else {
+        setSelectedBikes((prevSelectedBikes) => [
+          ...prevSelectedBikes,
+          selectedBike,
+        ]);
+        return;
+      }
+    } catch (error) {
+      setSelectedBikes((prevSelectedBikes) => [
+        ...prevSelectedBikes,
+        selectedBike,
+      ]);
+    }
+  };
   
   
   
