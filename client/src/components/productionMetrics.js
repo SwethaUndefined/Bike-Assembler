@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { getProductionCountForDay } from "../api";
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from "recharts";
-import { Typography, DatePicker,Row,Col,Empty } from "antd";
-import "./productionMetrics.css"
+import { Typography, DatePicker, Row, Col, Empty } from "antd";
+import moment from "moment";
+import "./productionMetrics.css";
 
 const EmployeeProductionMetrics = () => {
   const [productionData, setProductionData] = useState([]);
@@ -16,12 +17,13 @@ const EmployeeProductionMetrics = () => {
       setProductionData([]);
     }
   }, [selectedDate]);
+
   const fetchProductionData = async () => {
     try {
       if (!selectedDate) {
         return;
       }
-      const dateObj = new Date(selectedDate);
+      const dateObj = moment(selectedDate).set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
       const isoDateString = dateObj.toISOString();
       const response = await getProductionCountForDay(username, isoDateString);
       const dataArray = [
@@ -29,6 +31,7 @@ const EmployeeProductionMetrics = () => {
       ];
       setProductionData(dataArray);
     } catch (error) {
+      console.error("Error fetching production data:", error);
     }
   };
 
@@ -68,3 +71,4 @@ const EmployeeProductionMetrics = () => {
 };
 
 export default EmployeeProductionMetrics;
+
