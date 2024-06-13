@@ -23,15 +23,14 @@ const EmployeeProductionMetrics = () => {
       if (!selectedDate) {
         return;
       }
-      const dateObj = moment(selectedDate).set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
-      const isoDateString = dateObj.toISOString();
+      const dateObj = moment(selectedDate).toDate();
+      const isoDateString = moment(dateObj).set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
       const response = await getProductionCountForDay(username, isoDateString);
       const dataArray = [
         { name: "Production Count", value: response.productionCount },
       ];
       setProductionData(dataArray);
     } catch (error) {
-      console.error("Error fetching production data:", error);
     }
   };
 
@@ -41,7 +40,7 @@ const EmployeeProductionMetrics = () => {
         <Typography className="title">Employee Production Metrics</Typography>
       </Col>
       <Col span={24} className="datePicker">
-        <DatePicker onChange={(date, dateString) => setSelectedDate(date)} />
+        <DatePicker onChange={(date, dateString) => setSelectedDate(date ? new Date(dateString) : null)} />
       </Col>
       {selectedDate && productionData.length > 0 ? (
         <Col span={24} className="assembleMetrics">
@@ -71,4 +70,3 @@ const EmployeeProductionMetrics = () => {
 };
 
 export default EmployeeProductionMetrics;
-

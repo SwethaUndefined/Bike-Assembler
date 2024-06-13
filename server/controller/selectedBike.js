@@ -3,6 +3,8 @@ const Bike = require("../model/bike");
 const Production = require("../model/productionCount");
 const BikeAssembly = require("../model/bikeAssembly");
 
+
+
 module.exports = {
   submitSelectedBikes: async (req, res) => {
     const selectedBikes = req.body.selectedBikes;
@@ -85,24 +87,32 @@ module.exports = {
       bikeToUpdate.modified_at = new Date();
       await userBikes.save();
 
-
       if (status === "Completed") {
-        const assemblyDate = new Date(); 
-        assemblyDate.setHours(0, 0, 0, 0);
-        const assembler = username; 
-        const assembly = new BikeAssembly({ assemblyDate, bikeName, assembler });
+        const assembler = username;
+        const assembly = new BikeAssembly({
+          assemblyDate: new Date().toISOString().split('T')[0],
+          bikeName,
+          assembler,
+        });
         await assembly.save();
 
-        const completionDate = new Date(); 
-        completionDate.setHours(0, 0, 0, 0);
-    
-        let production = await Production.findOne({ username, date: completionDate });
+        const completionDate = new Date();
+        completionDate.setUTCHours(0, 0, 0, 0);
+        const formattedCompletionDate = completionDate.toISOString();
+        let production = await Production.findOne({
+          username,
+          date: formattedCompletionDate,
+        });
         if (production) {
           production.productionCount += 1;
         } else {
-          production = new Production({ username, date: completionDate, productionCount: 1 });
+          production = new Production({
+            username,
+            date: formattedCompletionDate,
+            productionCount: 1,
+          });
         }
-    
+
         await production.save();
 
         const currentDate = new Date();
@@ -111,6 +121,7 @@ module.exports = {
           { $set: { status: "completed", modified_at: currentDate } }
         );
       }
+
       res.status(200).json({ message: "Selected bike updated successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to update selected bike" });

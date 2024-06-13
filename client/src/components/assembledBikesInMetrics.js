@@ -39,10 +39,11 @@ const AssembledBikesInMetrics = () => {
       setLabel("cc");
     } else if (dates.length === 2) {
       const [fromDate, toDate] = dates;
-      const fromDateISO = fromDate.toISOString();
-      const toDateISO = toDate.toISOString();
+      const fromDateFormatted = fromDate.format('YYYY-MM-DD');
+      const toDateFormatted = toDate.format('YYYY-MM-DD');
+    
       try {
-        const response = await fetchDataByDateRange(fromDateISO, toDateISO);
+        const response = await fetchDataByDateRange(fromDateFormatted, toDateFormatted);
         const { assembledBikesCount } = response;
         setBikesData([
           { bikeName: "Assembled Bikes", cc: assembledBikesCount },

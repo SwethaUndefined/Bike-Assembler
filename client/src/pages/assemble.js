@@ -21,7 +21,6 @@ const Assemble = () => {
         message.error("Failed to fetch selected bikes.");
       }
     };
-
     fetchData();
   }, [username]);
 

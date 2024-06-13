@@ -152,11 +152,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      if (error.response && error.response.data.error) {
-        message.error(error.response.data.error);
-      } else {
         message.error('An error occurred. Please try again later.');
-      }
     }
   };
 

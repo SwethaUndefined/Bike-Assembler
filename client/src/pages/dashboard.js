@@ -25,7 +25,6 @@ const Dashboard = () => {
         const response = await getAllBikes();
         setAvailableBikes(response.bikes);
         const filteredBikes = response.bikes.filter(bike => bike.status !== 'completed');
-
         setBikes(filteredBikes);
       } catch (error) {
       }
@@ -42,7 +41,7 @@ const Dashboard = () => {
         }, 2000);
         return;
     }
-    if (selectedBikes.some(bike => bike === selectedBike)) {
+    if (selectedBikes.some(bike => bike === selectedBike)) {  //This is check the user will click the same bike again
       return;
   }
     try {
@@ -66,16 +65,14 @@ const Dashboard = () => {
             return;
         }
     } catch (error) {
-        setSelectedBikes((prevSelectedBikes) => [
-            ...prevSelectedBikes,
-            selectedBike,
-        ]);
+        // setSelectedBikes((prevSelectedBikes) => [
+        //     ...prevSelectedBikes,
+        //     selectedBike,
+        // ]);
     }
 };
 
-  
-  
-  
+
   const handleRemoveBike = (selectedBikeToRemove) => {
     setSelectedBikes((prevSelectedBikes) =>
       prevSelectedBikes.filter((bike) => bike !== selectedBikeToRemove)

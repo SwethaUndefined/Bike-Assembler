@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const BikeAssemblySchema = new mongoose.Schema({
   assemblyDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   bikeName: {
