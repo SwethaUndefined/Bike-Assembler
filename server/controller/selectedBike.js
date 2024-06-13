@@ -3,8 +3,6 @@ const Bike = require("../model/bike");
 const Production = require("../model/productionCount");
 const BikeAssembly = require("../model/bikeAssembly");
 
-
-
 module.exports = {
   submitSelectedBikes: async (req, res) => {
     const selectedBikes = req.body.selectedBikes;
@@ -90,25 +88,22 @@ module.exports = {
       if (status === "Completed") {
         const assembler = username;
         const assembly = new BikeAssembly({
-          assemblyDate: new Date().toISOString().split('T')[0],
+          assemblyDate: new Date().toISOString().split("T")[0],
           bikeName,
           assembler,
         });
         await assembly.save();
 
-        const completionDate = new Date();
-        completionDate.setUTCHours(0, 0, 0, 0);
-        const formattedCompletionDate = completionDate.toISOString();
         let production = await Production.findOne({
           username,
-          date: formattedCompletionDate,
+          date: new Date().toISOString().split("T")[0],
         });
         if (production) {
           production.productionCount += 1;
         } else {
           production = new Production({
             username,
-            date: formattedCompletionDate,
+            date: new Date().toISOString().split("T")[0],
             productionCount: 1,
           });
         }

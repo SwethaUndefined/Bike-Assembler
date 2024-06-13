@@ -4,15 +4,11 @@ module.exports = {
   getproductionCount: async (req, res) => {
     try {
       const { username, date } = req.params;
-
-      const queryDate = new Date(date);
-      const startOfDay = new Date(queryDate.setUTCHours(0, 0, 0, 0));
-      const endOfDay = new Date(queryDate.setUTCHours(23, 59, 59, 999));
-
-      const production = await Production.findOne({ 
-        username, 
-        date: { $gte: startOfDay, $lte: endOfDay } 
-      });
+     
+     const production = await Production.findOne({
+      username,
+      date: date
+    });
 
       if (production) {
         res.status(200).json({ productionCount: production.productionCount });

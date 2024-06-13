@@ -6,13 +6,8 @@ const productionSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
-    default: () => {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
-      return currentDate;
-    }
   },
   productionCount: {
     type: Number,

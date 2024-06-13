@@ -23,8 +23,7 @@ const EmployeeProductionMetrics = () => {
       if (!selectedDate) {
         return;
       }
-      const dateObj = moment(selectedDate).toDate();
-      const isoDateString = moment(dateObj).set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
+      const isoDateString = moment(selectedDate).format('YYYY-MM-DD');
       const response = await getProductionCountForDay(username, isoDateString);
       const dataArray = [
         { name: "Production Count", value: response.productionCount },
